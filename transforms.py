@@ -21,7 +21,8 @@ def rot2(theta: float) -> NDArray:
     """
 
     ## TODO - Fill this out
-    R =
+    R = np.array([[cos(theta), -sin(theta)],
+                  [sin(theta), cos(theta)]])
     return clean_rotation_matrix(R)
 
 
@@ -34,7 +35,9 @@ def rotx(theta: float) -> NDArray:
     :return R: 3x3 numpy array representing rotation about x-axis by amount theta
     """
     ## TODO - Fill this out
-    R =
+    R = np.array([[1, 0, 0],
+                  [0, cos(theta), -sin(theta)],
+                  [0, sin(theta), cos(theta)]])
 
     return clean_rotation_matrix(R)
 
@@ -47,7 +50,9 @@ def roty(theta: float) -> NDArray:
     :return R: 3x3 numpy array representing rotation about y-axis by amount theta
     """
     ## TODO - Fill this out
-    R =
+    R = np.array([[cos(theta), 0, sin(theta)],
+                  [0, 1, 0],
+                    [-sin(theta), 0, cos(theta)]])
 
     return clean_rotation_matrix(R)
 
@@ -60,7 +65,9 @@ def rotz(theta: float) -> NDArray:
     :return R: 3x3 numpy array representing rotation about z-axis by amount theta
     """
     ## TODO - Fill this out
-    R =
+    R = np.array([[cos(theta), -sin(theta), 0],
+                    [sin(theta), cos(theta), 0],
+                    [0, 0, 1]])
 
     return clean_rotation_matrix(R)
 
@@ -74,4 +81,5 @@ def rot_inv(R: NDArray) -> NDArray:
     :return R_inv: 2x2 or 3x3 inverse of the input rotation matrix
     '''
     ## TODO - Fill this out
-    return
+    R_inv = np.transpose(R)
+    return R_inv
