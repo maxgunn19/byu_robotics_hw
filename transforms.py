@@ -83,3 +83,44 @@ def rot_inv(R: NDArray) -> NDArray:
     ## TODO - Fill this out
     R_inv = np.transpose(R)
     return R_inv
+
+def se3(R: NDArray=np.eye(3), p: NDArray=np.zeros(3)) -> NDArray:
+    """
+    T = se3(R, p)
+
+    Creates a 4x4 homogeneous transformation matrix "T" from a 3x3 rotation matrix
+    and a position vector.
+
+    :param NDArray R: 3x3 numpy array representing orientation, defaults to identity.
+    :param NDArray p: numpy array representing position, defaults to [0, 0, 0].
+    :return T: 4x4 numpy array representing the homogeneous transform.
+    """
+    # TODO - fill out "T"
+    T = np.eye(4)
+    T[0:3, 0:3] = R
+    T[0:3, 3] = p
+    T[3, 3] = 1
+
+    return T
+
+def inv(T: NDArray) -> NDArray:
+    """
+    T_inv = inv(T)
+
+    Returns the inverse transform to T.
+
+    :param NDArray T: 4x4 homogeneous transformation matrix
+    :return T_inv: 4x4 numpy array that is the inverse to T so that T @ T_inv = I
+    """
+
+    #TODO - fill this out
+    R = T[0:3, 0:3]
+    p = T[0:3, 3]
+    R_inv = rot_inv(R)
+    p_inv = -R_inv @ p
+    T_inv = np.eye(4)
+    T_inv[0:3, 0:3] = R_inv
+    T_inv[0:3, 3] = p_inv
+    T_inv[3, 3] = 1
+
+    return T_inv
