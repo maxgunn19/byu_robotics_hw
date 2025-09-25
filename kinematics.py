@@ -41,8 +41,15 @@ def dh2A(dh: list[float], jt: str) -> Callable[[float], NDArray]:
             # TODO - complete code that defines the "A" or "T" homogenous matrix for a given set of DH parameters.
             # Do this in terms of the variables "dh" and "q" (so that one of the entries in your dh list or array
             # will need to be added to q).
+            theta, d, a, alpha = dh
+            theta += q  # since this is a revolute joint, theta is variable
 
-            T =
+            T = np.array([
+                [np.cos(theta), -np.sin(theta)*np.cos(alpha),  np.sin(theta)*np.sin(alpha), a*np.cos(theta)],
+                [np.sin(theta),  np.cos(theta)*np.cos(alpha), -np.cos(theta)*np.sin(alpha), a*np.sin(theta)],
+                [0,              np.sin(alpha),                np.cos(alpha),               d],
+                [0,              0,                            0,                           1]
+            ])
 
             return T
 
@@ -53,8 +60,15 @@ def dh2A(dh: list[float], jt: str) -> Callable[[float], NDArray]:
             # TODO - complete code that defines the "A" or "T" homogenous matrix for a given set of DH parameters.
             # Do this in terms of the variables "dh" and "q" (so that one of the entries in your dh list or array
             # will need to be added to q).
+            theta, d, a, alpha = dh
+            d += q  # since this is a prismatic joint, d is variable
 
-            T =
+            T = np.array([
+                [np.cos(theta), -np.sin(theta)*np.cos(alpha),  np.sin(theta)*np.sin(alpha), a*np.cos(theta)],
+                [np.sin(theta),  np.cos(theta)*np.cos(alpha), -np.cos(theta)*np.sin(alpha), a*np.sin(theta)],
+                [0,              np.sin(alpha),                np.cos(alpha),               d],
+                [0,              0,                            0,                           1]
+            ])
 
             return T
 
@@ -106,7 +120,7 @@ class SerialArm:
             # TODO use the function definition above (dh2A), and the dh parameters and
             # joint type to make a function and then append that function to the
             # "transforms" list (use the versions from self because they have error checks).
-            A =
+            A = dh2A(self.dh[i], self.jt[i])
             self.transforms.append(A)
 
         # assigning the base, and tip transforms that will be added to the default DH transformations.
@@ -195,6 +209,17 @@ class SerialArm:
         # organize the code any way you like.
 
         T = np.eye(4)
+        
+        # multiply thgough the A_i matrices
+        for i in range(start_frame, end_frame):
+            T = T @ self.transforms[i](q[i])
+            
+        # include base and tip transforms if specified
+        if base and start_frame == 0:
+            T = self.base @ T
+            
+        if tip and end_frame == self.n:
+            T = T @ self.tip
 
         return T
 
