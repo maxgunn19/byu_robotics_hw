@@ -280,8 +280,4 @@ def euler2R(th1: float, th2: float, th3: float, order: str='xyz') -> NDArray:
     else:
         raise ValueError("Invalid Order!")
 
-<<<<<<< Updated upstream
     return clean_rotation_matrix(R)
-=======
-    return clean_rotation_matrix(R)
->>>>>>> Stashed changes
