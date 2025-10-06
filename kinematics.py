@@ -222,8 +222,62 @@ class SerialArm:
             T = T @ self.tip
 
         return T
+    
+    def jacob(self, q: list[float]|NDArray, index: int|None=None, base: bool=False,
+              tip: bool=False) -> NDArray:
+        """
+        J = arm.jacob(q)
 
+        Calculates the geometric jacobian for a specified frame of the arm in a given configuration
 
+        :param list[float] | NDArray q: joint positions
+        :param int | None index: joint frame at which to calculate the Jacobian
+        :param bool base: specify whether to include the base transform in the Jacobian calculation
+        :param bool tip: specify whether to include the tip transform in the Jacobian calculation
+        :return J: 6xN numpy array, geometric jacobian of the robot arm
+        """
+
+        if index is None:
+            index = self.n
+        assert 0 <= index <= self.n, 'Invalid index value!'
+
+        # Initialize a zero matrix for the Jacobian of the correct size.
+        J = np.zeros((6, self.n))
+
+        # Calculate the transform to the end-effector to get its position.
+        # We'll use this position vector in our loop.
+        T_end_effector = self.fk(q, index=index, base=base, tip=tip)
+        p_e = T_end_effector[:3, 3]
+
+        # Loop through each joint to calculate its column in the Jacobian.
+        # The loop goes up to 'index', which is the frame we're interested in.
+        for i in range(index):
+            # Get the transform from the base to the current joint's frame (frame i).
+            # Note: fk(q, index=i) calculates T_{i-1}_in_0.
+            T_i_minus_1 = self.fk(q, index=i, base=base)
+
+            # Extract the z-axis and position of the origin of frame i-1.
+            # The z-axis is the 3rd column of the rotation matrix (index 2).
+            z_i_minus_1 = T_i_minus_1[:3, 2]
+            # The position is the 4th column of the transform (index 3).
+            p_i_minus_1 = T_i_minus_1[:3, 3]
+
+            # Check if the joint is revolute ('r').
+            if self.jt[i] == 'r':
+                # Top 3 rows (angular velocity): The z-axis of rotation.
+                J[3:, i] = z_i_minus_1
+                # Bottom 3 rows (linear velocity): cross product of z-axis and the vector from joint to end-effector.
+                J[:3, i] = np.cross(z_i_minus_1, p_e - p_i_minus_1)
+            # Otherwise, the joint is prismatic ('p').
+            else:
+                # Top 3 rows (angular velocity): [0, 0, 0] for a prismatic joint.
+                J[3:, i] = np.zeros(3)
+                # Bottom 3 rows (linear velocity): The z-axis of translation.
+                J[:3, i] = z_i_minus_1
+
+        return J
+    
+    
 if __name__ == "__main__":
     from visualization import VizScene
     np.set_printoptions(precision=4, suppress=True)
