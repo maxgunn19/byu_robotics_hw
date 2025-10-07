@@ -1,6 +1,8 @@
-import numpy as np
-import kinematics as kin
+# hw05_problem2.py
+# Solves problem 2 from homework 5.
 
+import numpy as np
+import kinematics as kin # Assumes kinematics.py is in the same folder
 
 # Set numpy print options
 np.set_printoptions(precision=4, suppress=True)
@@ -15,7 +17,7 @@ print("Part (a): Symbolic Jacobian (by hand)")
 print("="*60)
 print("""
       The symbolic Jacobian J(q) for the R-P robot, with link length L,
-is derived as follows (using [linear; angular] convention):
+is derived as follows (using the textbook's [linear; angular] convention):
 
       [ -L*sin(q1)   0 ]
       [  L*cos(q1)   0 ]
@@ -31,12 +33,19 @@ def symbolic_jacobian(q, L):
     """Calculates the symbolic jacobian for the R-P robot."""
     q1, _ = q
     J = np.zeros((6, 2))
-    # Linear components
+    
+    # Column 1 (Revolute joint)
+    # Linear velocity part
     J[0, 0] = -L * np.sin(q1)
     J[1, 0] = L * np.cos(q1)
-    J[2, 1] = 1
-    # Angular components
+    # Angular velocity part
     J[5, 0] = 1
+    
+    # Column 2 (Prismatic joint)
+    # Linear velocity part
+    J[2, 1] = 1
+    # Angular velocity part is already zero
+
     return J
 
 # =============================================================================
@@ -75,15 +84,14 @@ q_configs = {
 for name, q_vec in q_configs.items():
     print(f"\n--- {name} ---")
 
-    # Calculate Jacobian using your kinematics.py code
-    # NOTE: The code calculates J as [angular; linear]. We will swap it.
-    J_from_code_standard = rp_robot.jacob(q_vec)
-    J_from_code = np.vstack([J_from_code_standard[3:, :], J_from_code_standard[:3, :]])
+    # Calculate Jacobian using your updated kinematics.py code.
+    # No row-swapping is needed now.
+    J_from_code = rp_robot.jacob(q_vec)
 
     # Calculate Jacobian using the symbolic formula
     J_from_symbolic = symbolic_jacobian(q_vec, L)
 
-    print("Jacobian from kinematics.py code (Swapped to [linear; angular]):")
+    print("Jacobian from kinematics.py code ([linear; angular]):")
     print(J_from_code)
 
     print("\nJacobian from symbolic formula:")
@@ -91,6 +99,6 @@ for name, q_vec in q_configs.items():
 
     # Check if the results are numerically close
     if np.allclose(J_from_code, J_from_symbolic):
-        print("\n✅ Results Match!")
+        print("\nResults Match")
     else:
-        print("\n❌ Results DO NOT Match!")
+        print("\nResults DO NOT Match")
