@@ -2,7 +2,7 @@
 # Solves problem 2 from homework 5.
 
 import numpy as np
-import kinematics as kin # Assumes kinematics.py is in the same folder
+import kinematics as kin 
 
 # Set numpy print options
 np.set_printoptions(precision=4, suppress=True)
